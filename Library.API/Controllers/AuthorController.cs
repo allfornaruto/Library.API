@@ -25,12 +25,25 @@ namespace Library.API.Controllers
             return AuthorRepository.GetAuthors().ToList();   
         }
 
-        [HttpGet("{authorId}")]
+        [HttpGet("{authorId}", Name = nameof(GetAuthor))]
         public ActionResult<AuthorDto> GetAuthor(Guid authorId)
         {
             var author = AuthorRepository.GetAuthor(authorId);
             if (author == null) return NotFound();
             return author;
+        }
+
+        [HttpPost]
+        public IActionResult CreateAuthor(AuthorForCreationDto authorForCreattionDto)
+        {
+            var authorDto = new AuthorDto
+            {
+                Name = authorForCreattionDto.Name,
+                Age = authorForCreattionDto.Age,
+                Email = authorForCreattionDto.Email
+            };
+            AuthorRepository.AddAuthor(authorDto);
+            return CreatedAtRoute(nameof(GetAuthor), new { authorId = authorDto.Id }, authorDto);
         }
     }
 }
