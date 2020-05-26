@@ -30,5 +30,11 @@ namespace Library.API.Services
             author.Id = Guid.NewGuid();
             LibraryMockData.Current.Authors.Add(author);
         }
+
+        public void DeleteAuthor(AuthorDto author)
+        {
+            LibraryMockData.Current.Books.RemoveAll(book => book.AuthorId == author.Id);
+            LibraryMockData.Current.Authors.Remove(author);
+        }
     }
 }
