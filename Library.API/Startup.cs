@@ -1,18 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 using Library.API.Entities;
 using Library.API.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace Library.API
 {
@@ -29,16 +24,19 @@ namespace Library.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddScoped<IAuthorRepository, AuthorMockRepository>();
-            services.AddScoped<IBookRepository, BookMockRepository>();
+
+            //services.AddScoped<IAuthorRepository, AuthorMockRepository>();
+            //services.AddScoped<IBookRepository, BookMockRepository>();
+            services.AddScoped<IRepositoryWrapper, RepositoryWrapper>();
+            
             services.AddMvc(config =>
             {
                 config.ReturnHttpNotAcceptable = true;
             }).SetCompatibilityVersion(CompatibilityVersion.Latest)
             .AddXmlSerializerFormatters();
-            services.AddDbContext<LibraryDbContext>(option =>
+            services.AddDbContext<LibraryDbContext>(config =>
             {
-                option.UseSqlServer("<connection_string>");
+                config.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
             });
         }
 

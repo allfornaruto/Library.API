@@ -19,13 +19,13 @@ namespace Library.API.Data
                 new AuthorDto {
                     Id = new Guid("72D5B5F5-3008-49B7-B0D6-CC337F1A3330"),
                     Name = "Author 1",
-                    Age = 46,
+                    Age = 23,
                     Email = "author1@xxx.com"
                 },
                 new AuthorDto {
                     Id = new Guid("7D04A48E-BE4E-468E-8CE2-3AC0A0C79549"),
                     Name = "Author 2",
-                    Age = 38,
+                    Age = 22,
                     Email = "author2@xxx.com"
                 }
             };
