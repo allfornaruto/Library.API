@@ -1,6 +1,7 @@
 
 using Library.API.Entities;
 using Library.API.Services;
+using Library.API.Filters;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -31,6 +32,8 @@ namespace Library.API
             services.AddScoped<IRepositoryWrapper, RepositoryWrapper>();
 
             services.AddAutoMapper(typeof(Startup));
+
+            services.AddScoped<CheckAuthorExistFilterAttribute>();
 
             services.AddMvc(config =>
             {
