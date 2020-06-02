@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using AutoMapper;
 
 namespace Library.API
 {
@@ -28,7 +29,9 @@ namespace Library.API
             //services.AddScoped<IAuthorRepository, AuthorMockRepository>();
             //services.AddScoped<IBookRepository, BookMockRepository>();
             services.AddScoped<IRepositoryWrapper, RepositoryWrapper>();
-            
+
+            services.AddAutoMapper(typeof(Startup));
+
             services.AddMvc(config =>
             {
                 config.ReturnHttpNotAcceptable = true;

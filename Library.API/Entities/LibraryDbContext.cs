@@ -30,7 +30,7 @@ namespace Library.API.Entities
                 {
                     Id = new Guid("72D5B5F5-3008-49B7-B0D6-CC337F1A3330"),
                     Name = "Author 1",
-                    BirthData = new DateTimeOffset(new DateTime(1997, 10, 10)),
+                    BirthDate = new DateTimeOffset(new DateTime(1997, 10, 10)),
                     BirthPlace = "上海",
                     Email = "author1@xxx.com"
                 },
@@ -38,7 +38,7 @@ namespace Library.API.Entities
                 {
                     Id = new Guid("7D04A48E-BE4E-468E-8CE2-3AC0A0C79549"),
                     Name = "Author 2",
-                    BirthData = new DateTimeOffset(new DateTime(1998, 10, 10)),
+                    BirthDate = new DateTimeOffset(new DateTime(1998, 10, 10)),
                     BirthPlace = "深圳",
                     Email = "author2@xxx.com"
                 });
