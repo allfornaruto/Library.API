@@ -33,8 +33,8 @@ namespace Library.API.Controllers
             return bookDtoList.ToList();
         }
 
-        [HttpGet("{bookId}", Name = nameof(GetBook))]
-        public async Task<ActionResult<BookDto>> GetBook(Guid authorId, Guid bookId)
+        [HttpGet("{bookId}", Name = nameof(GetDbBook))]
+        public async Task<ActionResult<BookDto>> GetDbBook(Guid authorId, Guid bookId)
         {
             var book = await RepositoryWrapper.Book.GetBookAsync(authorId, bookId);
             if (book == null) return NotFound();

@@ -18,7 +18,7 @@ namespace Library.API.Controllers
         public IRepositoryWrapper RepositoryWrapper { get; }
         public AuthorDbController(IRepositoryWrapper respoitoryWrapper, IMapper mapper)
         {
-            RepositoryWrapper = RepositoryWrapper;
+            RepositoryWrapper = respoitoryWrapper;
             Mapper = mapper;
         }
 
@@ -35,11 +35,12 @@ namespace Library.API.Controllers
         {
             var author = await RepositoryWrapper.Author.GetByConditionAsync(author => author.Id == authorId);
             if (author == null) return NotFound();
-            return Mapper.Map<AuthorDto>(author);
+            var authorDto = Mapper.Map<IEnumerable<AuthorDto>>(author);
+            return authorDto.FirstOrDefault();
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateAuthor(AuthorForCreationDto authorForCreattionDto)
+        public async Task<IActionResult> CreateAuthorDb(AuthorForCreationDto authorForCreattionDto)
         {
             var author = Mapper.Map<Author>(authorForCreattionDto);
             RepositoryWrapper.Author.Create(author);
@@ -49,7 +50,7 @@ namespace Library.API.Controllers
             }
 
             var authorCreated = Mapper.Map<AuthorDto>(author);
-            return CreatedAtRoute(nameof(CreateAuthor), new { authorId = authorCreated.Id }, authorCreated);
+            return CreatedAtRoute(nameof(CreateAuthorDb), new { Id = authorCreated.Id }, authorCreated);
         }
 
         [HttpDelete]

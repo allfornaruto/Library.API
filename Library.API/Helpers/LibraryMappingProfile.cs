@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Library.API.Entities;
 using Library.API.Models;
+using System;
 
 namespace Library.API.Helpers
 {
@@ -10,9 +11,10 @@ namespace Library.API.Helpers
         {
             // 创建对象映射关系
             CreateMap<Author, AuthorDto>()
-                .ForMember(dest => dest.Age, config => config.MapFrom(src => src.BirthDate));
-            CreateMap<Book, BookDto>();
+                .ForMember(dest => dest.Age, config => config.MapFrom(src => DateTime.Now.Year - src.BirthDate.Year));
             CreateMap<AuthorForCreationDto, Author>();
+
+            CreateMap<Book, BookDto>();
             CreateMap<BookForCreationDto, Book>();
             CreateMap<BookForUpdateDto, Book>();
         }
