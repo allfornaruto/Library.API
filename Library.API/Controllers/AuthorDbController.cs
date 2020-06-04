@@ -48,12 +48,13 @@ namespace Library.API.Controllers
             if (!result) {
                 throw new Exception("创建资源author失败");
             }
-
+            // 数据已经创建成功
             var authorCreated = Mapper.Map<AuthorDto>(author);
-            return CreatedAtRoute(nameof(CreateAuthorDb), new { Id = authorCreated.Id }, authorCreated);
+            // 下面这一行报错了
+            return CreatedAtRoute(nameof(GetAuthorAsync), new { authorId = authorCreated.Id }, authorCreated);
         }
 
-        [HttpDelete]
+        [HttpDelete("{authorId}")]
         public async Task<IActionResult> DeleteAuthorAsync(Guid authorId)
         {
             var author = await RepositoryWrapper.Author.GetByIdAsync(authorId);

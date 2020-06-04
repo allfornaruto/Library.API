@@ -56,3 +56,60 @@ http://localhost:5000/api/authorsDb
 	"birthPlace": "上海"
 }
 ```
+
+4. 删除一位作者
+
+```
+DELETE
+http://localhost:5000/api/authorsDb/04b3eb99-1593-4eb0-ebce-08d807a7e7ba
+```
+
+5. 查询某作者的所有书籍
+
+```
+GET
+http://localhost:5000/api/authorsDb/72d5b5f5-3008-49b7-b0d6-cc337f1a3330/books
+```
+
+6. 查询某作者的某本书籍
+
+```
+GET
+http://localhost:5000/api/authorsDb/72d5b5f5-3008-49b7-b0d6-cc337f1a3330/books/7d8ebda9-2634-4c0f-9469-0695d6132153
+```
+
+7. 给某作者新增一本书籍
+
+```
+POST
+http://localhost:5000/api/authorsDb/72d5b5f5-3008-49b7-b0d6-cc337f1a3330/books
+{
+	"title": "海底两万里",
+	"description": "科幻名著",
+	"pages": 300
+}
+```
+
+8. 完全更新某作者的某一本书籍信息
+
+```
+PUT
+http://localhost:5000/api/authorsDb/72d5b5f5-3008-49b7-b0d6-cc337f1a3330/books/fd380247-9607-406a-8539-08d8085eb493
+{
+	"title": "神秘岛",
+	"description": "科幻名著",
+	"pages": 500
+}
+```
+
+9. 部分更新某作者的某一本书籍的信息
+
+```
+PATCH
+http://localhost:5000/api/authorsDb/72d5b5f5-3008-49b7-b0d6-cc337f1a3330/books/fd380247-9607-406a-8539-08d8085eb493
+[{
+	"op": "replace",
+	"path": "/pages",
+	"value": 505
+}]
+```

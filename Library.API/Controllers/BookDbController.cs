@@ -9,6 +9,7 @@ using Library.API.Models;
 using Library.API.Entities;
 using System.Linq;
 using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Library.API.Controllers
 {
@@ -53,8 +54,9 @@ namespace Library.API.Controllers
                 throw new Exception("创建资源Book失败");
             }
             var bookDto = Mapper.Map<BookDto>(book);
-            return CreatedAtRoute(nameof(GetBooksAsync), new { bookId = bookDto.Id }, bookDto);
+            return CreatedAtRoute(nameof(GetDbBook), new { authorId = bookDto.AuthorId, bookId = bookDto.Id }, bookDto);
         }
+
 
         [HttpPut("{bookId}")]
         public async Task<IActionResult> UpdateBookAsync(Guid authorId, Guid bookId, BookForUpdateDto updatedBook)
@@ -79,7 +81,7 @@ namespace Library.API.Controllers
             var book = await RepositoryWrapper.Book.GetBookAsync(authorId, bookId);
             if (book == null) return NotFound();
             var bookUpdateDto = Mapper.Map<BookForUpdateDto>(book);
-            patchDocument.ApplyTo(bookUpdateDto, (Microsoft.AspNetCore.JsonPatch.Adapters.IObjectAdapter)ModelState);
+            patchDocument.ApplyTo(bookUpdateDto, ModelState);
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);

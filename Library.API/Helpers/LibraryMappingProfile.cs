@@ -15,6 +15,7 @@ namespace Library.API.Helpers
             CreateMap<AuthorForCreationDto, Author>();
 
             CreateMap<Book, BookDto>();
+            CreateMap<Book, BookForUpdateDto>();
             CreateMap<BookForCreationDto, Book>();
             CreateMap<BookForUpdateDto, Book>();
         }
