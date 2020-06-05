@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using System.Linq;
 using System;
 using Library.API.Entities;
+using Library.API.Helpers;
+using Newtonsoft.Json;
 
 namespace Library.API.Controllers
 {
@@ -22,11 +24,31 @@ namespace Library.API.Controllers
             Mapper = mapper;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<List<AuthorDto>>> GetAuthorsAsync()
+        [HttpGet(Name = nameof(GetAuthorsAsync))]
+        public async Task<ActionResult<List<AuthorDto>>> GetAuthorsAsync([FromQuery] AuthorResourceParameters parameters)
         {
-            var authors = (await RepositoryWrapper.Author.GetAllAsync()).OrderBy(author => author.Name);
-            var authorsDtoList = Mapper.Map<IEnumerable<AuthorDto>>(authors);
+            var pagedList = await RepositoryWrapper.Author.GetAllAsync(parameters);
+            var paginationMetadata = new
+            {
+                totalCount = pagedList.TotalCount,
+                pageSize = pagedList.PageSize,
+                currentPage = pagedList.CurrentPage,
+                totalPages = pagedList.TotalPages,
+                previousePageLink = pagedList.HasPrevious ? Url.Link(nameof(GetAuthorsAsync), new
+                {
+                    pageNumber = pagedList.CurrentPage - 1,
+                    pageSize = pagedList.PageSize
+                }) : null,
+                nextPageLink = pagedList.HasNext ? Url.Link(nameof(GetAuthorsAsync), new
+                {
+                    pageNumber = pagedList.CurrentPage + 1,
+                    pageSize = pagedList.PageSize
+                }) : null
+            };
+
+            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(paginationMetadata));
+
+            var authorsDtoList = Mapper.Map<IEnumerable<AuthorDto>>(pagedList);
             return authorsDtoList.ToList();
         }
 

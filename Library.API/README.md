@@ -113,3 +113,11 @@ http://localhost:5000/api/authorsDb/72d5b5f5-3008-49b7-b0d6-cc337f1a3330/books/f
 	"value": 505
 }]
 ```
+
+10. 查询所有作者（分页）
+
+```
+GET
+http://localhost:5000/api/authorsDb?pageNumber=1&pageSize=2
+
+```
