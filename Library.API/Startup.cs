@@ -28,8 +28,6 @@ namespace Library.API
         {
             services.AddControllers().AddNewtonsoftJson();
 
-            //services.AddScoped<IAuthorRepository, AuthorMockRepository>();
-            //services.AddScoped<IBookRepository, BookMockRepository>();
             services.AddScoped<IRepositoryWrapper, RepositoryWrapper>();
 
             services.AddAutoMapper(typeof(Startup));

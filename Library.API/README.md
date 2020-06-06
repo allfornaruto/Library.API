@@ -2,6 +2,8 @@
 ## .Net Core 常用命令
 
 ```
+dotnet tool install --global dotnet-ef
+
 dotnet add package <NuGet程序包>
 
 dotnet build
@@ -50,10 +52,10 @@ http://localhost:5000/api/authorsDb/72d5b5f5-3008-49b7-b0d6-cc337f1a3330
 POST
 http://localhost:5000/api/authorsDb
 {
-	"name":"author3",
-	"age": 25,
-	"email":"author3@qq.com",
-	"birthPlace": "上海"
+	"name":"author12",
+	"birthDate": "1990-01-01",
+	"email":"author12@qq.com",
+	"birthPlace": "香港"
 }
 ```
 
@@ -119,5 +121,29 @@ http://localhost:5000/api/authorsDb/72d5b5f5-3008-49b7-b0d6-cc337f1a3330/books/f
 ```
 GET
 http://localhost:5000/api/authorsDb?pageNumber=1&pageSize=2
+
+```
+
+11. 查询符合条件的作者（分页+条件过滤）
+
+```
+GET
+http://localhost:5000/api/authorsDb?pageNumber=1&pageSize=2&birthPlace=上海
+
+```
+
+12. 搜索符合条件的作者（分页+搜索）
+
+```
+GET
+http://localhost:5000/api/authorsDb?pageNumber=1&pageSize=1&searchQuery=深圳
+
+```
+
+13. 搜索符合条件的作者（排序）
+
+```
+GET
+http://localhost:5000/api/authorsDb?sortBy=age
 
 ```

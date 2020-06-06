@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace Library.API.Models
 {
@@ -7,7 +8,7 @@ namespace Library.API.Models
         [Required(ErrorMessage = "必须提供姓名")]
         [MaxLength(20, ErrorMessage = "姓名的最大长度为20个字符")]
         public string Name { get; set; }
-        public int Age { get; set; }
+        public DateTimeOffset BirthDate { get; set; }
         public string BirthPlace { get; set; }
 
         [EmailAddress(ErrorMessage = "邮箱格式不正确")]
