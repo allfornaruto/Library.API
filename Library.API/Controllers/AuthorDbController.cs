@@ -9,6 +9,7 @@ using System;
 using Library.API.Entities;
 using Library.API.Helpers;
 using Newtonsoft.Json;
+using Microsoft.Extensions.Logging;
 
 namespace Library.API.Controllers
 {
@@ -18,10 +19,12 @@ namespace Library.API.Controllers
     {
         public IMapper Mapper { get; }
         public IRepositoryWrapper RepositoryWrapper { get; }
-        public AuthorDbController(IRepositoryWrapper respoitoryWrapper, IMapper mapper)
+        public ILogger<AuthorDbController> Logger { get; }
+        public AuthorDbController(IRepositoryWrapper respoitoryWrapper, IMapper mapper, ILogger<AuthorDbController> logger)
         {
             RepositoryWrapper = respoitoryWrapper;
             Mapper = mapper;
+            Logger = logger;
         }
 
         [HttpGet(Name = nameof(GetAuthorsAsync))]
