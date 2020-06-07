@@ -30,6 +30,7 @@ namespace Library.API.Controllers
         [HttpGet(Name = nameof(GetAuthorsAsync))]
         public async Task<ActionResult<List<AuthorDto>>> GetAuthorsAsync([FromQuery] AuthorResourceParameters parameters)
         {
+            Logger.LogInformation("LogInformation");
             var pagedList = await RepositoryWrapper.Author.GetAllAsync(parameters);
             var paginationMetadata = new
             {
