@@ -36,7 +36,7 @@ namespace Library.API.Controllers
 
         [HttpPost]
         [Route("getqueryandbody")]
-        public IActionResult GetQueryAndBody([FromBody] TestBody body, [FromQuery] int a, [FromQuery] int b)
+        public IActionResult GetQueryAndBody([FromBody] TestBody body, [FromQuery] int a, [FromQuery] string b)
         {
             // POST或PUT可以不写
             //if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -57,6 +57,7 @@ namespace Library.API.Controllers
         public int? C { get; set; }
         [NoSpace]
         public string D { get; set; }
+        public string E { get; set; }
     }
 
     public class NoSpaceAttribute : ValidationAttribute

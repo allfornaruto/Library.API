@@ -48,6 +48,7 @@ namespace Library.API
             {
                 config.ReturnHttpNotAcceptable = true;
                 config.Filters.Add<JsonExceptionFilter>();
+                config.Filters.Add<ActionParameterValidationFilter>();
             }).SetCompatibilityVersion(CompatibilityVersion.Latest)
             .AddXmlSerializerFormatters();
             services.AddDbContext<LibraryDbContext>(config =>
