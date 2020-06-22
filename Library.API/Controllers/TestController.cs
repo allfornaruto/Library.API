@@ -1,9 +1,11 @@
 ﻿using AutoMapper.Mappers;
+using GraphQL.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
 namespace Library.API.Controllers
 {
@@ -142,6 +144,21 @@ namespace Library.API.Controllers
             };
 
             Console.WriteLine($"studentMap[\"Tom\"] = {studentMap["Tom"]}");
+
+            return Ok();
+        }
+
+        [HttpGet]
+        [Route("learnLINQ")]
+        public IActionResult LearnLINQ() {
+            List<Student> studentList = new List<Student>()
+            {
+                new Student(){ age = 10, name = "Tom" },
+                new Student(){ age = 11, name = "Simon" }
+            };
+
+            IEnumerable<Student> students = studentList.Where(item => item.name == "Tom");
+            Console.WriteLine($"students = {students.ToList()[0]}");
 
             return Ok();
         }
