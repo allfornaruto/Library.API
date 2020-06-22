@@ -1,6 +1,7 @@
 ﻿using AutoMapper.Mappers;
 using GraphQL.Utilities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -153,12 +154,30 @@ namespace Library.API.Controllers
         public IActionResult LearnLINQ() {
             List<Student> studentList = new List<Student>()
             {
-                new Student(){ age = 10, name = "Tom" },
-                new Student(){ age = 11, name = "Simon" }
+                new Student(){ age = 10, name = "Tom", city = "上海" },
+                new Student(){ age = 11, name = "Simon", city = "北京" },
+                new Student(){ age = 12, name = "Alice", city = "香港" }
             };
 
-            IEnumerable<Student> students = studentList.Where(item => item.name == "Tom");
-            Console.WriteLine($"students = {students.ToList()[0]}");
+            IEnumerable<Student> students_1 = studentList.Where(item => item.name == "Tom");
+            var students_2 = students_1.ToList()[0];
+            Console.WriteLine($"students_2 = {students_2}");
+
+            IEnumerable<Student> students_3 = studentList.Select(item => {
+                item.name = "Alex";
+                return item;
+            });
+            var students_4 = students_3.ToList()[0];
+            Console.WriteLine($"students_4 = {students_4}");
+
+            IEnumerable<(string name, string city)> tupleStudent = studentList.Select(item => {
+                return (
+                    name: item.name,
+                    city: item.city
+                );
+            });
+            var tupleStudentList = tupleStudent.ToList();
+            Console.WriteLine($"tupleStudentList Select返回元组 name = {tupleStudentList[0].name} city = {tupleStudentList[0].city}  ");
 
             return Ok();
         }
@@ -191,10 +210,11 @@ namespace Library.API.Controllers
     public class Student {
         public int age { get; set; }
         public string name { get; set; }
+        public string city { get; set; }
 
         public override string ToString()
         {
-            return $"姓名：{name}，年龄：{age}";
+            return $"姓名：{name}，年龄：{age}，城市：{city}";
         }
     }
 }
