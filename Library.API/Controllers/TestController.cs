@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper.Mappers;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 
 namespace Library.API.Controllers
 {
@@ -105,6 +106,45 @@ namespace Library.API.Controllers
 
             return Ok("ok");
         }
+
+        [HttpGet]
+        [Route("learnCollectionsList")]
+        public IActionResult LearnCollections() {
+            List<Student> studentList = new List<Student>()
+            {
+                new Student(){ age = 10, name = "Tom" },
+                new Student(){ age = 11, name = "Simon" }
+            };
+            var alice = new Student() { age = 12, name = "Alice" };
+            studentList.Add(alice);
+            //studentList.Remove(alice);
+
+            //var findAlice = studentList.Find(item => item.name == "Alice");
+            //studentList.Remove(findAlice);
+
+            studentList.Sort((a, b) => b.age - a.age);
+
+            foreach (var student in studentList)
+            {
+                Console.WriteLine($"student = {student}"); 
+            }
+
+            return Ok();
+        }
+
+        [HttpGet]
+        [Route("learnDictionary")]
+        public IActionResult LearnDictionary() {
+            var studentMap = new Dictionary<string, Student>()
+            {
+                ["Tom"] = new Student() { age = 10, name = "Tom" },
+                ["Sandy"] = new Student() { age = 11, name = "Sandy" }
+            };
+
+            Console.WriteLine($"studentMap[\"Tom\"] = {studentMap["Tom"]}");
+
+            return Ok();
+        }
     }
 
     public class TestBody
@@ -128,6 +168,16 @@ namespace Library.API.Controllers
             {
                 return ValidationResult.Success;
             }
+        }
+    }
+
+    public class Student {
+        public int age { get; set; }
+        public string name { get; set; }
+
+        public override string ToString()
+        {
+            return $"姓名：{name}，年龄：{age}";
         }
     }
 }
