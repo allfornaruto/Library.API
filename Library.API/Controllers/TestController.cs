@@ -179,6 +179,34 @@ namespace Library.API.Controllers
             var tupleStudentList = tupleStudent.ToList();
             Console.WriteLine($"tupleStudentList Select返回元组 name = {tupleStudentList[0].name} city = {tupleStudentList[0].city}  ");
 
+            Console.WriteLine($"开始排序...");
+            /// 升序
+            //IEnumerable<Student> students_5 = studentList.OrderBy(item => item.age);
+            /// 降序
+            IEnumerable<Student> students_5 = studentList.OrderByDescending(item => item.age);
+            var students_6 = students_5.ToList();
+            foreach (var item in students_6)
+            {
+                Console.WriteLine($"student = {item}");
+            }
+
+            return Ok();
+        }
+
+        [HttpGet]
+        [Route("learnDelegate")]
+        public IActionResult LearnDelegate() {
+            Thermostat thermostat = new Thermostat();
+            Heater heater = new Heater(80);
+            Cooler cooler = new Cooler(60);
+            string temperature = "85";
+            thermostat.OnTemperatureChange += heater.OnTemperatureChanged;
+            thermostat.OnTemperatureChange += (newTemperature) =>
+            {
+                throw new InvalidOperationException();
+            };
+            thermostat.OnTemperatureChange += cooler.OnTemperatureChanged;
+            thermostat.CurrentTemperature = int.Parse(temperature);
             return Ok();
         }
     }
@@ -216,5 +244,126 @@ namespace Library.API.Controllers
         {
             return $"姓名：{name}，年龄：{age}，城市：{city}";
         }
+    }
+
+    public class Cooler
+    {
+        public Cooler(float temperature)
+        {
+            Temperature = temperature;        
+        }
+
+        public float Temperature { get; set; }
+
+        public void OnTemperatureChanged(float newTemperature)
+        {
+            if (newTemperature > Temperature)
+            {
+                Console.WriteLine("制冷 开启");
+            }
+            else
+            {
+                Console.WriteLine("制冷 关闭");
+            }
+        }
+    }
+
+    public class Heater
+    {
+        public Heater(float temperature)
+        {
+            Temperature = temperature;
+        }
+        public float Temperature { get; set; }
+
+        public void OnTemperatureChanged(float newTemperature)
+        {
+            if (newTemperature < Temperature)
+            {
+                Console.WriteLine("制热 开启");
+            }
+            else
+            {
+                Console.WriteLine("制热 关闭");
+            }
+        }
+    }
+    public class Thermostat
+    { 
+        public Action<float> OnTemperatureChange { get; set; }
+        public float CurrentTemperature {
+            get 
+            { 
+                return _CurrentTemperature; 
+            }
+            set
+            {
+                //if (value != CurrentTemperature)
+                //{
+                //    _CurrentTemperature = value;
+                //    OnTemperatureChange?.Invoke(value);
+                //}
+
+                if (value != CurrentTemperature)
+                {
+                    _CurrentTemperature = value;
+                    Action<float> onTemperatureChange = OnTemperatureChange;
+                    if (onTemperatureChange != null)
+                    {
+                        List<Exception> exceptionCollection = new List<Exception>();
+                        var invocationList = onTemperatureChange.GetInvocationList();
+                        foreach (Action<float> handler in invocationList)
+                        {
+                            try
+                            {
+                                handler(value);
+                            }
+                            catch (Exception exception)
+                            {
+                                exceptionCollection.Add(exception);
+                            }
+                        }
+                        if (exceptionCollection.Count > 0)
+                        {
+                            throw new AggregateException("有一些异常", exceptionCollection);
+                        }
+                    }
+                }
+            }
+        }
+        private float _CurrentTemperature;
+    }
+
+    public class ThermostatEvent
+    {
+        public class TemperatureArgs: System.EventArgs
+        {
+            public TemperatureArgs(float newTemperature)
+            {
+                NewTemperature = newTemperature;
+            }
+            public float NewTemperature { get; set; }
+        }
+
+        public event EventHandler<TemperatureArgs> OnTemperatureChange = delegate { };
+
+
+        public float CurrentTemperature
+        {
+            get
+            {
+                return _CurrentTemperature;
+            }
+            set
+            {
+                if (value != CurrentTemperature)
+                {
+                    _CurrentTemperature = value;
+                    OnTemperatureChange?.Invoke(this, new TemperatureArgs(value));
+                }
+            }
+        }
+
+        private float _CurrentTemperature;
     }
 }
