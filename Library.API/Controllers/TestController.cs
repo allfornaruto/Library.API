@@ -1,12 +1,12 @@
-﻿using AutoMapper.Mappers;
-using GraphQL.Utilities;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Collections.Concurrent;
 
 namespace Library.API.Controllers
 {
@@ -27,8 +27,8 @@ namespace Library.API.Controllers
         {
             var obj = new
             {
-                a=1,
-                b=2
+                a = 1,
+                b = 2
             };
             return Ok(obj);
         }
@@ -129,7 +129,7 @@ namespace Library.API.Controllers
 
             foreach (var student in studentList)
             {
-                Console.WriteLine($"student = {student}"); 
+                Console.WriteLine($"student = {student}");
             }
 
             return Ok();
@@ -209,10 +209,174 @@ namespace Library.API.Controllers
             thermostat.CurrentTemperature = int.Parse(temperature);
             return Ok();
         }
+
+        [HttpGet]
+        [Route("learnTask1")]
+        public IActionResult LearnTask1()
+        {
+            Task t = new Task(() =>
+            {
+                Console.WriteLine("任务1开始...");
+                //模拟工作过程
+                Thread.Sleep(5000);
+            });
+            t.Start();
+            t.ContinueWith((task) =>
+            {
+                Console.WriteLine("任务完成，完成时候的状态为：");
+                Console.WriteLine("IsCanceled={0}\tIsCompleted={1}\tIsFaulted={2}", task.IsCanceled, task.IsCompleted, task.IsFaulted);
+            });
+            return Ok();
+        }
+
+        [HttpGet]
+        [Route("learnTask2")]
+        public IActionResult LearnTask2()
+        {
+            var t1 = new Task(() => TestTask.TaskMethod("Task 1"));
+            var t2 = new Task(() => TestTask.TaskMethod("Task 2"));
+            t2.Start();
+            t1.Start();
+            Task.WaitAll(t1, t2);
+            Task.Run(() => TestTask.TaskMethod("Task 3"));
+            Task.Factory.StartNew(() => TestTask.TaskMethod("Task 4"));
+            //标记为长时间运行任务,则任务不会使用线程池,而在单独的线程中运行。
+            Task.Factory.StartNew(() => TestTask.TaskMethod("Task 5"), TaskCreationOptions.LongRunning);
+
+            return Ok();
+        }
+
+        [HttpGet]
+        [Route("learnTask3")]
+        public IActionResult LearnTask3()
+        {
+            Console.WriteLine("主线程执行业务处理.");
+            TestTask.AsyncFunction();
+            Console.WriteLine("主线程执行其他处理");
+            for (int i = 0; i < 10; i++)
+            {
+                Console.WriteLine(string.Format("Main:i={0}", i));
+            }
+            return Ok();
+        }
+
+        [HttpGet]
+        [Route("learnTask4")]
+        public IActionResult LearnTask4()
+        {
+            //创建任务
+            Task<int> getsumtask = new Task<int>(() => TestTask.Getsum());
+            //启动任务,并安排到当前任务队列线程中执行任务(System.Threading.Tasks.TaskScheduler)
+            getsumtask.Start();
+            Console.WriteLine("主线程执行其他处理");
+            //等待任务的完成执行过程。
+            getsumtask.Wait();
+            //获得任务的执行结果
+            Console.WriteLine("任务执行结果：{0}", getsumtask.Result.ToString());
+
+            return Ok();
+        }
+
+        [HttpGet]
+        [Route("learnTask5")]
+        public IActionResult LearnTask5()
+        {
+            //创建一个任务
+            Task<int> task = new Task<int>(() =>
+            {
+                int sum = 0;
+                Console.WriteLine("使用Task执行异步操作.");
+                for (int i = 0; i < 100; i++)
+                {
+                    sum += i;
+                }
+                return sum;
+            });
+            //启动任务,并安排到当前任务队列线程中执行任务(System.Threading.Tasks.TaskScheduler)
+            task.Start();
+            Console.WriteLine("主线程执行其他处理");
+            //任务完成时执行处理。
+            Task cwt = task.ContinueWith(t =>
+            {
+                Console.WriteLine("任务完成后的执行结果：{0}", t.Result.ToString());
+            });
+            //task.Wait();
+            cwt.Wait();
+            Console.WriteLine("OK");
+            return Ok();
+        }
+
+        [HttpGet]
+        [Route("learnTask6")]
+        public IActionResult LearnTask6()
+        {
+            ConcurrentStack<int> stack = new ConcurrentStack<int>();
+
+            //t1先串行
+            var t1 = Task.Factory.StartNew(() =>
+            {
+                stack.Push(1);
+                stack.Push(2);
+            });
+
+            //t2,t3并行执行
+            var t2 = t1.ContinueWith(t =>
+            {
+                int result;
+                stack.TryPop(out result);
+                Console.WriteLine("Task t2 result={0},Thread id {1}", result, Thread.CurrentThread.ManagedThreadId);
+            });
+
+            //t2,t3并行执行
+            var t3 = t1.ContinueWith(t =>
+            {
+                int result;
+                stack.TryPop(out result);
+                Console.WriteLine("Task t3 result={0},Thread id {1}", result, Thread.CurrentThread.ManagedThreadId);
+            });
+
+            //等待t2和t3执行完
+            Task.WaitAll(t2, t3);
+
+            //t4串行执行
+            var t4 = Task.Factory.StartNew(() =>
+            {
+                Console.WriteLine("当前集合元素个数：{0},Thread id {1}", stack.Count, Thread.CurrentThread.ManagedThreadId);
+            });
+            t4.Wait();
+            return Ok();
+        }
+
+        [HttpGet]
+        [Route("learnTask7")]
+        public IActionResult LearnTask7()
+        {
+            Task<string[]> parent = new Task<string[]>(state =>
+            {
+                Console.WriteLine(state);
+                string[] result = new string[2];
+                //创建并启动子任务
+                new Task(() => { result[0] = "我是子任务1。"; }, TaskCreationOptions.AttachedToParent).Start();
+                new Task(() => { result[1] = "我是子任务2。"; }, TaskCreationOptions.AttachedToParent).Start();
+                return result;
+            }, "我是父任务，并在我的处理过程中创建多个子任务，所有子任务完成以后我才会结束执行。");
+            //任务处理完成后执行的操作
+            Task task2 = parent.ContinueWith(t =>
+            {
+                Array.ForEach(t.Result, r => Console.WriteLine(r));
+            });
+            //启动父任务
+            parent.Start();
+            //等待任务结束 Wait只能等待父线程结束,没办法等到父线程的ContinueWith结束
+            //parent.Wait();
+            task2.Wait();
+            Console.WriteLine("OK");
+            return Ok();
+        }
     }
 
     public class TestBody
-    { 
+    {
         [Required]
         public int? C { get; set; }
         [NoSpace]
@@ -250,7 +414,7 @@ namespace Library.API.Controllers
     {
         public Cooler(float temperature)
         {
-            Temperature = temperature;        
+            Temperature = temperature;
         }
 
         public float Temperature { get; set; }
@@ -289,12 +453,12 @@ namespace Library.API.Controllers
         }
     }
     public class Thermostat
-    { 
+    {
         public Action<float> OnTemperatureChange { get; set; }
         public float CurrentTemperature {
-            get 
-            { 
-                return _CurrentTemperature; 
+            get
+            {
+                return _CurrentTemperature;
             }
             set
             {
@@ -336,7 +500,7 @@ namespace Library.API.Controllers
 
     public class ThermostatEvent
     {
-        public class TemperatureArgs: System.EventArgs
+        public class TemperatureArgs : System.EventArgs
         {
             public TemperatureArgs(float newTemperature)
             {
@@ -365,5 +529,34 @@ namespace Library.API.Controllers
         }
 
         private float _CurrentTemperature;
+    }
+
+    public class TestTask
+    {
+        public static void TaskMethod(string name)
+        {
+            Console.WriteLine("Task {0} is running on a thread id {1}. Is thread pool thread: {2}",
+            name, Thread.CurrentThread.ManagedThreadId, Thread.CurrentThread.IsThreadPoolThread);
+        }
+
+        public async static void AsyncFunction()
+        {
+            await Task.Delay(1);
+            Console.WriteLine("使用System.Threading.Tasks.Task执行异步操作.");
+            for (int i = 0; i < 10; i++)
+            {
+                Console.WriteLine(string.Format("AsyncFunction:i={0}", i));
+            }
+        }
+        public static int Getsum()
+        {
+            int sum = 0;
+            Console.WriteLine("使用Task执行异步操作.");
+            for (int i = 0; i < 100; i++)
+            {
+                sum += i;
+            }
+            return sum;
+        }
     }
 }
